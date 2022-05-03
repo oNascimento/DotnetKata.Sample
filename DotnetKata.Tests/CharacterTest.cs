@@ -13,6 +13,7 @@ namespace DotnetKata.Tests
             var hero = new Character();
             var enemy = new Character();
             const int damageDealt = 100;
+            
             int expectedHealthRemaing = enemy.Health - damageDealt;
 
             hero.DealDamage(enemy, damageDealt);
@@ -35,7 +36,7 @@ namespace DotnetKata.Tests
             var hero = new Character();
 
             hero.Health = 100;
-            hero.Heal(1000);
+            hero.Heal(hero, 1000);
 
             Assert.Equal(1000, hero.Health);
         }
@@ -94,6 +95,57 @@ namespace DotnetKata.Tests
 
             Assert.True(damageDealtWithBow);
             Assert.False(damageDealtWithSword);
+        }
+
+        [Fact]
+        public void CharacterCanJoinAndLeaveAFaction()
+        {
+            var horde = new Faction();
+            var hero = new Character();
+
+            hero.JoinFaction(horde);
+
+            Assert.Single(horde.Allies);
+            Assert.Single(hero.Factions);
+
+            hero.LeaveFaction(horde);
+
+            Assert.Empty(horde.Allies);
+            Assert.Empty(hero.Factions);
+        }
+
+        [Fact]
+        public void EnemyShouldBeOnOtherFactionToDealDamage()
+        {
+            var alliance = new Faction();
+            var horde = new Faction();
+
+            var hero = new Character();
+            var enemy = new Character();
+
+            hero.JoinFaction(horde);
+            enemy.JoinFaction(horde);
+            
+            var damageDealtOnHorde = hero.DealDamage(enemy, 100);
+            
+            enemy.JoinFaction(horde);
+            Assert.False(damageDealtOnHorde);
+        }
+
+        [Fact]
+        public void EnemyShouldBeOnTheSameFactionToHeal()
+        {
+            var alliance = new Faction();
+            var horde = new Faction();
+
+            var hero = new Character();
+            var enemy = new Character();
+
+            hero.JoinFaction(horde);
+            enemy.JoinFaction(alliance);
+            
+            var healApplied = hero.Heal(enemy, 100);
+            Assert.False(healApplied);
         }
     }
 }

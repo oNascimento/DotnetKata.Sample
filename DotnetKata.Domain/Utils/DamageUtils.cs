@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DotnetKata.Domain.Models;
 
 namespace DotnetKata.Domain.Utils
@@ -36,6 +37,16 @@ namespace DotnetKata.Domain.Utils
                 result = (int) Math.Round(amount * 0.5);
             
             return result;
+        }
+
+        public static bool IsEnemyOnTheSameFaction(Character character, Character target)
+        {
+            foreach(var faction in character.Factions)
+            {
+                if(faction.Allies.Any(ally => ally == target))
+                    return true;
+            }
+            return false;
         }
     }
 }

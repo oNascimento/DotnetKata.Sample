@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DotnetKata.Domain.Enums;
 using DotnetKata.Domain.Utils;
 
@@ -11,6 +12,7 @@ namespace DotnetKata.Domain.Models
             Health = 1000;
             Level = 1;
             Position = new Tuple<int, int>(0,0);
+            Factions = new List<Faction>();
         }
 
         public Character(ECharacterType type, Tuple<int, int> position) : this()
@@ -24,8 +26,8 @@ namespace DotnetKata.Domain.Models
         public int Level { get; set; }
         public ECharacterType Type { get; set; }
         public Tuple<int, int> Position { get; set; }
+        public List<Faction> Factions { get; set; }
         public bool IsAlive => Health > 0;
-
         public bool DealDamage(Character enemy, int amount)
         {
             if(this == enemy)
@@ -34,23 +36,49 @@ namespace DotnetKata.Domain.Models
                 return false;
             }
 
+            if(DamageUtils.IsEnemyOnTheSameFaction(this, enemy))
+            {
+                Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
+                return false;
+            }
+
             if(!DamageUtils.IsEnemyInRange(this, enemy))
             {
                 Console.WriteLine($"Chararacter of type {this.Type} is not in range");
                 return false;
             }
-
+            
             amount = DamageUtils.ResolveCriticalDamage(this, enemy, amount);
-            Console.WriteLine($"{enemy.Level} Take {amount} damage");
             enemy.Health -= amount;
+            
+            Console.WriteLine($"{nameof(enemy)} take {amount} damage");
             return true;
         }
 
-        public void Heal(int amount)
+        public bool Heal(Character target, int amount)
         {
+            if(!DamageUtils.IsEnemyOnTheSameFaction(this, target) && target != this)
+            {
+                Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
+                return false;
+            }
+
             Console.WriteLine($"Heal {amount} damage");
-            Health += amount;
-            if(Health > maxLifeAmount) Health = maxLifeAmount;
+            target.Health += amount;
+            if(target.Health > maxLifeAmount) target.Health = maxLifeAmount;
+            return true;
+        }
+
+        public void JoinFaction(Faction faction)
+        {
+            faction.Allies.Add(this);
+            Factions.Add(faction);
+        }
+
+        public void LeaveFaction(Faction faction)
+        {
+            Factions.Remove(faction);
+            faction.Allies.Remove(this);
         }
     }
 }
