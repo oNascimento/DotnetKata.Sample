@@ -70,7 +70,7 @@ namespace DotnetKata.Domain.Models
                     return false;
                 }
                 
-                if(!IsAlive)
+                if(!IsAlive && ally.IsAlive)
                 {
                     Console.WriteLine($"Chararacter is Dead");
                     return false;
