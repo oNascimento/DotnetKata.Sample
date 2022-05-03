@@ -69,6 +69,12 @@ namespace DotnetKata.Domain.Models
                     Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
                     return false;
                 }
+                
+                if(!IsAlive)
+                {
+                    Console.WriteLine($"Chararacter is Dead");
+                    return false;
+                }
             }
 
             Console.WriteLine($"Heal {amount} damage");
