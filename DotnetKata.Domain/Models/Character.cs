@@ -5,7 +5,7 @@ using DotnetKata.Domain.Utils;
 
 namespace DotnetKata.Domain.Models
 {
-    public class Character
+    public class Character : Element
     {
         public Character()
         {
@@ -22,45 +22,53 @@ namespace DotnetKata.Domain.Models
         }
 
         private const int maxLifeAmount = 1000;
-        public int Health { get; set; }
         public int Level { get; set; }
         public ECharacterType Type { get; set; }
         public Tuple<int, int> Position { get; set; }
         public List<Faction> Factions { get; set; }
         public bool IsAlive => Health > 0;
-        public bool DealDamage(Character enemy, int amount)
+        public bool DealDamage(Element target, int amount)
         {
-            if(this == enemy)
+            if(target is Character)
             {
-                Console.WriteLine($"Chararacter is damaging himself");
-                return false;
+                Character enemy = (Character) target;
+                if(this == enemy)
+                {
+                    Console.WriteLine($"Chararacter is damaging himself");
+                    return false;
+                }
+
+                if(DamageUtils.IsEnemyOnTheSameFaction(this, enemy))
+                {
+                    Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
+                    return false;
+                }
+
+                if(!DamageUtils.IsEnemyInRange(this, enemy))
+                {
+                    Console.WriteLine($"Chararacter of type {this.Type} is not in range");
+                    return false;
+                }
+                
+                amount = DamageUtils.ResolveCriticalDamage(this, enemy, amount);
             }
 
-            if(DamageUtils.IsEnemyOnTheSameFaction(this, enemy))
-            {
-                Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
-                return false;
-            }
-
-            if(!DamageUtils.IsEnemyInRange(this, enemy))
-            {
-                Console.WriteLine($"Chararacter of type {this.Type} is not in range");
-                return false;
-            }
+            target.Health -= amount;
             
-            amount = DamageUtils.ResolveCriticalDamage(this, enemy, amount);
-            enemy.Health -= amount;
-            
-            Console.WriteLine($"{nameof(enemy)} take {amount} damage");
+            Console.WriteLine($"{nameof(target)} take {amount} damage");
             return true;
         }
 
-        public bool Heal(Character target, int amount)
+        public bool Heal(Element target, int amount)
         {
-            if(!DamageUtils.IsEnemyOnTheSameFaction(this, target) && target != this)
+            if(target is Character)
             {
-                Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
-                return false;
+                Character ally = (Character) target;
+                if(!DamageUtils.IsEnemyOnTheSameFaction(this, ally) && ally != this)
+                {
+                    Console.WriteLine($"Chararacter of type {this.Type} is on the same faction");
+                    return false;
+                }
             }
 
             Console.WriteLine($"Heal {amount} damage");

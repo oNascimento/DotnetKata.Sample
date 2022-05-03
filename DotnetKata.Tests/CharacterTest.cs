@@ -147,5 +147,20 @@ namespace DotnetKata.Tests
             var healApplied = hero.Heal(enemy, 100);
             Assert.False(healApplied);
         }
+
+        [Fact]
+        public void HeroCanAtackAllianceHouses()
+        {
+            var alliance = new Faction();
+            var horde = new Faction();
+
+            var hero = new Character();
+            var house = new House();
+
+            hero.JoinFaction(horde);
+            
+            var damageDealt = hero.DealDamage(house, 100);
+            Assert.True(damageDealt);
+        }
     }
 }
